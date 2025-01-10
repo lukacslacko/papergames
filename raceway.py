@@ -1,6 +1,9 @@
 import random
 
-RADIUS = 25
+RADIUS = 35
+OUT_RATIO = 1
+IN_RATIO = 0.2
+GRID_SIZE = 7
 W = 297
 H = 210
 
@@ -88,14 +91,14 @@ def render_graph(edges, to_pdf=False):
   plt.xlim(0, W)
   plt.ylim(0, H)
   # Iterate over all integer pixels and render them if they are between 0.1 * RADIUS and 0.9 * RADIUS from the nearest edge.
-  for x in range(0, W, 4):
-    for y in range(0, H, 4):
-      if distance_from_edges((x, y), edges) < 0.9*RADIUS and distance_from_edges((x, y), edges) > 0.15 * RADIUS:
+  for x in range(0, W, GRID_SIZE):
+    for y in range(0, H, GRID_SIZE):
+      if distance_from_edges((x, y), edges) < OUT_RATIO*RADIUS and distance_from_edges((x, y), edges) > IN_RATIO * RADIUS:
         plt.plot([x], [y], 'ro', alpha=0.7, fillstyle='none')
-  # Draw a grey grid every 4 units
-  for x in range(0, W, 4):
+  # Draw a grey grid every GRID_SIZE units
+  for x in range(0, W, GRID_SIZE):
     plt.plot([x, x], [0, H], 'k-', alpha=0.1)
-  for y in range(0, H, 4):
+  for y in range(0, H, GRID_SIZE):
     plt.plot([0, W], [y, y], 'k-', alpha=0.1)
   if not to_pdf:
     plt.show()
