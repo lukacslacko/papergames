@@ -1,9 +1,9 @@
 import random
 
-RADIUS = 35
+RADIUS = 30
 OUT_RATIO = 1
 IN_RATIO = 0.2
-GRID_SIZE = 7
+GRID_SIZE = 6
 W = 297
 H = 210
 
@@ -21,7 +21,7 @@ def randpoints():
       break
     # pts.append(min(nextpts, key=lambda p: min((p[0]-x[0])**2 + (p[1]-x[1])**2 for x in pts)))
     # pts.append(min(nextpts, key=lambda p: sum((p[0]-x[0])**2 + (p[1]-x[1])**2 for x in pts)))
-    pts.append(min(nextpts, key=lambda p: -sum((p[0]-x[0])**2 + (p[1]-x[1])**2 for x in pts)))
+    pts.append(min(nextpts, key=lambda p: -sum(((p[0]-x[0])**2 + (p[1]-x[1])**2)**.5 for x in pts)))
   return pts
 
 def min_spanning_tree(pts):
@@ -77,6 +77,7 @@ def distance_from_edges(p, edges):
   return min(distance_from_segment(p, a, b) for a, b in edges)
 
 def render_graph(edges, to_pdf=False):
+  pixels = []
   # Edges is a list of ((x1, y1), (x2, y2)) tuples.
   # Render the graph as a matplotlib figure, making the axis span [0,W] and [0,H].
   import matplotlib.pyplot as plt
@@ -95,11 +96,56 @@ def render_graph(edges, to_pdf=False):
     for y in range(0, H, GRID_SIZE):
       if distance_from_edges((x, y), edges) < OUT_RATIO*RADIUS and distance_from_edges((x, y), edges) > IN_RATIO * RADIUS:
         plt.plot([x], [y], 'ro', alpha=0.7, fillstyle='none')
+        pixels.append((x, y))
   # Draw a grey grid every GRID_SIZE units
   for x in range(0, W, GRID_SIZE):
     plt.plot([x, x], [0, H], 'k-', alpha=0.1)
   for y in range(0, H, GRID_SIZE):
     plt.plot([0, W], [y, y], 'k-', alpha=0.1)
+
+  shape = "g-"
+  d = GRID_SIZE * .7
+  dd = GRID_SIZE - d
+  for x in range(0, W, GRID_SIZE):
+    for y in range(0, H, GRID_SIZE):
+      square = [(x,y) in pixels, (x+GRID_SIZE,y) in pixels, (x+GRID_SIZE,y+GRID_SIZE) in pixels, (x,y+GRID_SIZE) in pixels]
+      if square.count(True) == 0:
+        continue
+      if square.count(True) == 4:
+        continue
+      if square.count(True) == 3:
+        if not square[0]:
+          plt.plot([x, x+dd], [y+dd, y], shape)
+        if not square[1]:
+          plt.plot([x+d, x+GRID_SIZE], [y, y+dd], shape)
+        if not square[2]:
+          plt.plot([x+d, x+GRID_SIZE], [y+GRID_SIZE, y+d], shape)
+        if not square[3]:
+          plt.plot([x, x+dd], [y+d, y+GRID_SIZE], shape)
+      if square.count(True) == 1:
+        if square[0]:
+          plt.plot([x, x+d], [y+d, y], shape)
+        if square[1]:
+          plt.plot([x+dd, x+GRID_SIZE], [y, y+d], shape)
+        if square[2]:
+          plt.plot([x+dd, x+GRID_SIZE], [y+GRID_SIZE, y+dd], shape)
+        if square[3]:
+          plt.plot([x, x+d], [y+dd, y+GRID_SIZE], shape)
+      if square.count(True) == 2:
+        if square[0] and square[1]:
+          plt.plot([x, x+GRID_SIZE], [y+d, y+d], shape)
+        if square[2] and square[3]:
+          plt.plot([x, x+GRID_SIZE], [y+dd, y+dd], shape)
+        if square[0] and square[3]:
+          plt.plot([x+d, x+d], [y, y+GRID_SIZE], shape)
+        if square[1] and square[2]:
+          plt.plot([x+dd, x+dd], [y, y+GRID_SIZE], shape)
+        if square[0] and square[2]:
+          plt.plot([x, x+d], [y+d, y], shape)
+          plt.plot([x+dd, x+GRID_SIZE], [y+GRID_SIZE, y+dd], shape)
+        if square[1] and square[3]:
+          plt.plot([x+dd, x+GRID_SIZE], [y, y+d], shape)
+          plt.plot([x, x+d], [y+dd, y+GRID_SIZE], shape)
   if not to_pdf:
     plt.show()
   else:
