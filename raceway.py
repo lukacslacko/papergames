@@ -1,18 +1,20 @@
 import random
 import matplotlib.pyplot as plt
 
-RADIUS = 50
+RADIUS = 30
 OUT_RATIO = 1
 IN_RATIO = 0.2
-GRID_SIZE = 10
+GRID_SIZE = 6
 W = 297
 H = 210
-random.seed(123)
+random.seed(456)
 
-start_x = 14 * GRID_SIZE
-start_y_min = 8 * GRID_SIZE
-start_y_max = 13 * GRID_SIZE
-start_y = 11 * GRID_SIZE
+SOLVE = True
+
+start_x = 20 * GRID_SIZE
+start_y_min = 0 * GRID_SIZE
+start_y_max = 5 * GRID_SIZE
+start_y = 3 * GRID_SIZE
 
 
 def randpoint():
@@ -206,13 +208,10 @@ def render_graph(edges):
   for y in range(start_y_min, start_y_max + GRID_SIZE, GRID_SIZE):
     plt.plot([start_x], [y], "ko", alpha=0.7)
 
-def save_pdf(to_pdf=False):
-  if not to_pdf:
-    plt.show()
-  else:
-    # Only render the inside of the figure, no axis, no labels, no other things.
-    plt.axis("off")
-    plt.savefig("raceway.pdf", bbox_inches="tight", pad_inches=0)
+def save_pdf(name):
+  # Only render the inside of the figure, no axis, no labels, no other things.
+  plt.axis("off")
+  plt.savefig(f"{name}.pdf", bbox_inches="tight", pad_inches=0)
 
 
 def segments_intersect(a, b, c, d):
@@ -290,9 +289,10 @@ pts = randpoints()
 print(len(pts))
 edges = min_spanning_tree(pts)
 render_graph(edges)
-last_state, come_from = find_shortest_path()
-while last_state is not None:
-  plt.plot([last_state[0][0]], [last_state[0][1]], "yo")
-  plt.plot([last_state[0][0], last_state[0][0] + last_state[1][0]], [last_state[0][1], last_state[0][1] + last_state[1][1]], "b-")
-  last_state = come_from[last_state]
-save_pdf(to_pdf=True)
+if SOLVE:
+  last_state, come_from = find_shortest_path()
+  while last_state is not None:
+    plt.plot([last_state[0][0]], [last_state[0][1]], "yo")
+    plt.plot([last_state[0][0], last_state[0][0] + last_state[1][0]], [last_state[0][1], last_state[0][1] + last_state[1][1]], "b-")
+    last_state = come_from[last_state]
+save_pdf("solution" if SOLVE else "raceway")
