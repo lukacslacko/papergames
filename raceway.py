@@ -2,20 +2,23 @@ import random
 import matplotlib.pyplot as plt
 
 RADIUS = 30
-OUT_RATIO = 1
 IN_RATIO = 0.2
+OUT_RATIO = 1
 GRID_SIZE = 6
 W = 297
 H = 210
-random.seed(456)
+SEED = 111
+random.seed(SEED)
 
 SOLVE = True
 
 start_x = 20 * GRID_SIZE
 start_y_min = 0 * GRID_SIZE
 start_y_max = 5 * GRID_SIZE
-start_y = 3 * GRID_SIZE
+start_y = 2 * GRID_SIZE
 
+def description():
+  return f"{SEED} R{RADIUS} {IN_RATIO}-{OUT_RATIO} {W}x{H}/{GRID_SIZE} {start_x//GRID_SIZE}:{start_y//GRID_SIZE} {start_y_min//GRID_SIZE}-{start_y_max//GRID_SIZE}"
 
 def randpoint():
   return (
@@ -126,6 +129,8 @@ def render_graph(edges):
   plt.figure(figsize=(W / 25.4, H / 25.4))
   plt.xlim(0, W)
   plt.ylim(0, H)
+  # Add the description in the corner in tiny font.
+  plt.text(5, 5, description(), fontsize=4, verticalalignment="bottom")
   # Iterate over all integer pixels and render them if they are between 0.1 * RADIUS and 0.9 * RADIUS from the nearest edge.
   for x in range(0, W, GRID_SIZE):
     for y in range(0, H, GRID_SIZE):
